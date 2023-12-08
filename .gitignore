@@ -201,3 +201,4 @@ cython_debug/
 
 # Ignore Local Test Data
 local_data
+src/cpp/bin

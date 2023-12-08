@@ -1,10 +1,10 @@
 all: test
 
 test: main.cpp
-	g++ main.cpp -o test
+	g++ main.cpp -I /usr/include/SDL2 -lSDL2 -o bin/test
 
 run: test
-	./test
+	./bin/test
 
 clean:
 	rm -f test
