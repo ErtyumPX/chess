@@ -19,8 +19,11 @@ Uint32 time_left(void)
         return next_time - now;
 }
 
-#define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 1000
+// 118,150,86,255
+// 238,238,210,255
+
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 800
 // removing  "w KQkq - 0 1" for now
 #define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" 
 
@@ -46,9 +49,6 @@ int** fen_to_board(string fen){
         if (c == '/'){
             continue;
         }
-        // check if c can be converted to int
-        // if so, convert it and put 0 for every place
-        // else, it is a piece and put it in the board
         if (c >= '0' && c <= '9'){
             int space_count = c - '0';
             for (int i = 0; i < space_count; i++){
@@ -65,26 +65,36 @@ int** fen_to_board(string fen){
 
 
 class Game {
-    private:
-        int** board;
-        bool whites_turn = true;
-
-        int selected_piece[2] = {-1, -1};
-        int possible_moves[27][2];
-
-        int prev_moves[100][2];
-
-        bool quit = false;
-        bool restart = false;
+    private: // private variables
+        // window Rendering
         int width;
         int height;
         SDL_Window* window = nullptr;
         SDL_Renderer* renderer = nullptr;
+
+        // board Rendering
+        SDL_Texture* white_pieces[6];
+        SDL_Texture* black_pieces[6];
+        int** board;
+        int board_x;
+        int board_y;
+        int board_width;
+        int board_unit;
         
-    public:
+        // game Logic
+        bool whites_turn = true;
+        int selected_piece[2] = {-1, -1};
+        int possible_moves[27][2];
+        int prev_moves[100][2];
+
+        // game Loop
+        bool quit = false;
+        bool restart = false;
+    
+    public: // public variables
 
 
-    public:
+    public: // public methods
         Game(int width, int height){
             this->width = width;
             this->height = height;
@@ -101,8 +111,13 @@ class Game {
             );
             renderer = SDL_CreateRenderer(window, -1, 0);
 
-            // cache image textures from "../data/white and "../data/black"
+            board_width = width;
+            board_unit = height / 8;
+            board_x = 0;
+            board_y = 0;
 
+            // cache image textures from "../data/white and "../data/black"
+                        
 
 
             cout << "Game initialized." << endl;
@@ -119,8 +134,6 @@ class Game {
         void create_chess(string fen = ""){
             if (fen == "") fen = EMPTY_BOARD;
             board = fen_to_board(fen);
-            print_board();
-
         }
 
         void move_piece(int piece[2], int square[2]){
@@ -165,10 +178,28 @@ class Game {
         }
 
         void render(){
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderClear(renderer);
 
+            // render board
+            SDL_SetRenderDrawColor(renderer, 118, 150, 86, 255);
+            SDL_Rect current_rect = {board_x, board_y, board_width, board_width};
+            SDL_RenderFillRect(renderer, &current_rect);
+            for (int x = 0; x < 8; x++)
+            {
+                for (int y = 0; y < 8; y++)
+                {
+                    current_rect = {board_x + x * board_unit, board_y + y * board_unit, board_unit, board_unit};
+                    if ((x + y) % 2 == 0){
+                        SDL_SetRenderDrawColor(renderer, 238, 238, 210, 255);
+                        SDL_RenderFillRect(renderer, &current_rect);
+                    }
+                    if (board[x][y] == 0) continue;
+                    // Draw the figure
 
+                }
+            }
+            
 
             SDL_RenderPresent(renderer);
 
