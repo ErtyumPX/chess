@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_timer.h>
@@ -24,19 +25,39 @@ Uint32 time_left(void)
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
+
 // removing  "w KQkq - 0 1" for now
 #define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" 
+
+#define WHITE_PIECE_DIR "/home/erthium/Projects/chess/src/data/white/{}.png"
+#define BLACK_PIECE_DIR "/home/erthium/Projects/chess/src/data/black/{}.png"
 
 using namespace std;
 
 enum Piece{
-    KING = 'K',
-    QUEEN = 'Q',
-    ROOK = 'R',
-    BISHOP = 'B',
-    KNIGHT = 'N',
-    PAWN = 'P'
+    WHITE_KING = 'K',
+    WHITE_QUEEN = 'Q',
+    WHITE_ROOK = 'R',
+    WHITE_BISHOP = 'B',
+    WHITE_KNIGHT = 'N',
+    WHITE_PAWN = 'P',
+    BLACK_KING = 'k',
+    BLACK_QUEEN = 'q',
+    BLACK_ROOK = 'r',
+    BLACK_BISHOP = 'b',
+    BLACK_KNIGHT = 'n',
+    BLACK_PAWN = 'p'
 };
+
+int piece_to_int(char piece){
+    if (piece == 'K' || piece == 'k') return 0;
+    if (piece == 'Q' || piece == 'q') return 1;
+    if (piece == 'R' || piece == 'r') return 2;
+    if (piece == 'B' || piece == 'b') return 3;
+    if (piece == 'N' || piece == 'n') return 4;
+    if (piece == 'P' || piece == 'p') return 5;
+    return -1;
+}
 
 int** fen_to_board(string fen){
     // board is 2d 8x8 int array
@@ -110,15 +131,23 @@ class Game {
                 0
             );
             renderer = SDL_CreateRenderer(window, -1, 0);
-
             board_width = width;
             board_unit = height / 8;
             board_x = 0;
             board_y = 0;
-
             // cache image textures from "../data/white and "../data/black"
-                        
-
+            for (int i = 0; i < 6; i++){
+                string path = WHITE_PIECE_DIR;
+                path.replace(path.find("{}"), 2, string(1, char(i + '0')));
+                SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
+                white_pieces[i] = texture;
+            }
+            for (int i = 0; i < 6; i++){
+                string path = BLACK_PIECE_DIR;
+                path.replace(path.find("{}"), 2, string(1, char(i + '0')));
+                SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
+                black_pieces[i] = texture;
+            }
 
             cout << "Game initialized." << endl;
 
@@ -177,6 +206,14 @@ class Game {
 
         }
 
+        SDL_Texture* get_texture(int piece){
+            if (piece >= 'A' && piece <= 'Z'){
+                return white_pieces[piece_to_int(piece)];
+            } else {
+                return black_pieces[piece_to_int(piece)];
+            }
+        }
+
         void render(){
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderClear(renderer);
@@ -194,8 +231,10 @@ class Game {
                         SDL_SetRenderDrawColor(renderer, 238, 238, 210, 255);
                         SDL_RenderFillRect(renderer, &current_rect);
                     }
-                    if (board[x][y] == 0) continue;
+                    if (board[y][x] == 0) continue;
                     // Draw the figure
+                    SDL_Texture* texture = get_texture(board[y][x]);
+                    SDL_RenderCopy(renderer, texture, NULL, &current_rect);
 
                 }
             }
