@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <SDL_timer.h>
 
+using namespace std;
 
 #define TICK_INTERVAL 100
 static Uint32 next_time;
@@ -32,7 +33,6 @@ Uint32 time_left(void)
 #define WHITE_PIECE_DIR "/home/erthium/Projects/chess/src/data/white/{}.png"
 #define BLACK_PIECE_DIR "/home/erthium/Projects/chess/src/data/black/{}.png"
 
-using namespace std;
 
 enum Piece{
     WHITE_KING = 'K',
@@ -166,7 +166,14 @@ class Game {
         }
 
         void move_piece(int piece[2], int square[2]){
+            board[square[0]][square[1]] = board[piece[0]][piece[1]];
+            board[piece[0]][piece[1]] = 0;
+        }
 
+        void move_selected(int square[2]){
+            move_piece(selected_piece, square);
+            selected_piece[0] = -1;
+            selected_piece[1] = -1;
         }
 
         void print_board(){
@@ -179,8 +186,21 @@ class Game {
             }
             cout << endl;
         }
+        
+        int mouse_to_square(int mouse_x, int mouse_y){
+            int square_x = (mouse_x - board_x) / board_unit;
+            int square_y = (mouse_y - board_y) / board_unit;
+            if (square_x < 0 || square_x > 7 || square_y < 0 || square_y > 7) return -1;
+            return square_y * 8 + square_x;
+        }
 
         void handle_events(){
+            // mouse events
+            int mouse_x, mouse_y;
+            SDL_GetMouseState(&mouse_x, &mouse_y);
+            int square = mouse_to_square(mouse_x, mouse_y);
+            
+            // SDL events
             SDL_Event event;
             while(SDL_PollEvent(&event)){
                 switch (event.type)
@@ -188,6 +208,22 @@ class Game {
                 case SDL_QUIT:
                     quit = true;
                     break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (event.button.button == SDL_BUTTON_LEFT){
+                        if (square != -1){
+                            int piece = board[square / 8][square % 8];
+                            if (selected_piece[0] != -1 && selected_piece[0] != square / 8 && selected_piece[1] != square % 8){
+                                int new_square[2] = {square / 8, square % 8};
+                                move_selected(new_square);
+                            }
+                            else if (piece != 0){
+                                selected_piece[0] = square / 8;
+                                selected_piece[1] = square % 8;
+                            }
+                        }
+                    }
+                    break;
+
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym)
                     {
@@ -202,8 +238,7 @@ class Game {
                 default:
                     break;
                 }
-            }
-
+            }         
         }
 
         SDL_Texture* get_texture(int piece){
