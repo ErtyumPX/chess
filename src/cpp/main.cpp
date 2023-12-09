@@ -93,6 +93,9 @@ class Game {
         SDL_Window* window = nullptr;
         SDL_Renderer* renderer = nullptr;
 
+        // event handling
+        int current_square = -1;
+
         // board Rendering
         SDL_Texture* white_pieces[6];
         SDL_Texture* black_pieces[6];
@@ -194,11 +197,37 @@ class Game {
             return square_y * 8 + square_x;
         }
 
+        void get_valid_moves(int piece[2]){
+            // TODO: add every valid move to:
+            // this->possible_moves
+        }
+
+        void select_piece(int piece[2]){
+            selected_piece[0] = piece[0];
+            selected_piece[1] = piece[1];
+            get_valid_moves(piece);
+        }
+
+        void handle_left_mouse(){
+            int square_vector[2] = {current_square / 8, current_square % 8};
+            int piece = board[square_vector[0]][square_vector[1]];
+            if (selected_piece[0] != -1){
+                if (selected_piece[0] != square_vector[0] || selected_piece[1] != square_vector[1]){
+                    int new_square[2] = {current_square / 8, current_square % 8};
+                    // TODO: check if move is valid
+                    move_selected(new_square);
+                }
+            }
+            else if (piece != 0){
+                select_piece(square_vector);
+            }
+        }
+
         void handle_events(){
             // mouse events
             int mouse_x, mouse_y;
             SDL_GetMouseState(&mouse_x, &mouse_y);
-            int square = mouse_to_square(mouse_x, mouse_y);
+            current_square = mouse_to_square(mouse_x, mouse_y);
             
             // SDL events
             SDL_Event event;
@@ -210,20 +239,11 @@ class Game {
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT){
-                        if (square != -1){
-                            int piece = board[square / 8][square % 8];
-                            if (selected_piece[0] != -1 && selected_piece[0] != square / 8 && selected_piece[1] != square % 8){
-                                int new_square[2] = {square / 8, square % 8};
-                                move_selected(new_square);
-                            }
-                            else if (piece != 0){
-                                selected_piece[0] = square / 8;
-                                selected_piece[1] = square % 8;
-                            }
+                        if (current_square != -1){
+                            handle_left_mouse();
                         }
                     }
                     break;
-
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym)
                     {
