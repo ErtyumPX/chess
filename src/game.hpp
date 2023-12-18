@@ -47,10 +47,11 @@ class Game{
         void loop();
 
     private:
-        void move_piece(int piece[2], int square[2]);
+        bool move_piece(int piece[2], int square[2]);
         void move_selected(int square[2]);
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
+        void update_possible_moves();
         void get_valid_moves(int piece[2]);
         void select_piece(int piece[2]);
         void handle_left_mouse();
