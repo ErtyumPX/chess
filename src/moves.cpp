@@ -51,9 +51,6 @@ void Game::update_possible_moves(){
         }
     }
 
-    cout << white_king[0] << " " << white_king[1] << endl;
-    cout << black_king[0] << " " << black_king[1] << endl;
-    cout << "Hihi" << endl;
     // calculate king moves at last
     get_valid_moves(white_king);
     get_valid_moves(black_king);
@@ -210,8 +207,7 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
-            
-            if (is_white_piece(board[new_x][new_y]) != is_white){
+            if (board[new_x][new_y] == 0 || is_white_piece(board[new_x][new_y]) != is_white){
                 possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
                 possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
                 cursor++;
