@@ -75,6 +75,7 @@ Game::~Game(){
 void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
     board = fen_to_board(fen);
+    update_possible_moves();
 }
 
 void Game::print_board(){
@@ -98,7 +99,6 @@ int Game::mouse_to_square(int mouse_x, int mouse_y){
 void Game::select_piece(int piece[2]){
     selected_piece[0] = piece[0];
     selected_piece[1] = piece[1];
-    get_valid_moves(piece);
 }
 
 void Game::handle_left_mouse(){

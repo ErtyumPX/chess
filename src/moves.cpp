@@ -17,6 +17,7 @@ bool Game::move_piece(int piece[2], int square[2]){
     if (!is_move_valid) return false;
     board[square[0]][square[1]] = board[piece[0]][piece[1]];
     board[piece[0]][piece[1]] = 0;
+    update_possible_moves();
     return true;
 }
 
@@ -49,6 +50,9 @@ void Game::update_possible_moves(){
         }
     }
 
+    cout << white_king[0] << " " << white_king[1] << endl;
+    cout << black_king[0] << " " << black_king[1] << endl;
+    cout << "Hihi" << endl;
     // calculate king moves at last
     get_valid_moves(white_king);
     get_valid_moves(black_king);
@@ -59,7 +63,7 @@ void Game::get_valid_moves(int piece[2]){
         possible_moves[piece[0]][piece[1]][z][0] = -1;
         possible_moves[piece[0]][piece[1]][z][1] = -1;
     }
-    int cursor = 0;
+    int cursor;
     char piece_char = board[piece[0]][piece[1]];
     // get if black or white
     bool is_white = is_white_piece(piece_char);
@@ -72,7 +76,34 @@ void Game::get_valid_moves(int piece[2]){
     {
     case BLACK_KING: // only the king and pawn has differs from white to black
         if (is_white){
-            
+            for (int i = 0; i < 8; i++){
+                int new_x = piece[0] + king_moves[i][0];
+                int new_y = piece[1] + king_moves[i][1];
+                if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+                if (is_white_piece(board[new_x][new_y])) continue;
+                bool any_threat = false;
+                for (int x = 0; x < 8; x++){
+                    if (any_threat) break;
+                    for (int y = 0; y < 8; y++){
+                        if (any_threat) break;
+                        if (board[x][y] == 0) continue;
+                        if (is_white_piece(board[x][y])) continue;
+                        for (int z = 0; z < 27; z++){
+                            if (possible_moves[x][y][z][0] == -1) break;
+                            if (possible_moves[x][y][z][0] == new_x && possible_moves[x][y][z][1] == new_y){
+                                any_threat = true;
+                                break;
+                            }
+                        }                    
+                    }
+                }
+                if (!any_threat){
+                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
+                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
+                    cursor++;
+                }
+                
+            }
         }
         else {
 
