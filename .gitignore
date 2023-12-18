@@ -199,6 +199,3 @@ cython_debug/
 # Ignore VS Code Files
 .vscode
 
-# Ignore Local Test Data
-local_data
-src/cpp/bin
