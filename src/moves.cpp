@@ -17,6 +17,7 @@ bool Game::move_piece(int piece[2], int square[2]){
     if (!is_move_valid) return false;
     board[square[0]][square[1]] = board[piece[0]][piece[1]];
     board[piece[0]][piece[1]] = 0;
+    is_whites_turn = !is_whites_turn;
     update_possible_moves();
     return true;
 }

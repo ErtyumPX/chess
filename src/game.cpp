@@ -75,6 +75,7 @@ Game::~Game(){
 void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
     board = fen_to_board(fen);
+    is_whites_turn = true;
     update_possible_moves();
 }
 
@@ -97,6 +98,7 @@ int Game::mouse_to_square(int mouse_x, int mouse_y){
 }
 
 void Game::select_piece(int piece[2]){
+    if (is_white_piece(board[piece[0]][piece[1]]) != is_whites_turn) return;
     selected_piece[0] = piece[0];
     selected_piece[1] = piece[1];
 }

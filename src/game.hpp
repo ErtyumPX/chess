@@ -50,6 +50,7 @@ class Game{
         int selected_piece[2] = {-1, -1};
         int possible_moves[8][8][27][2];
         int prev_moves[100][2];
+        bool is_whites_turn;
 
         // game Loop
         bool quit = false;
