@@ -2,7 +2,7 @@
 #include <SDL_image.h>
 #include <SDL_timer.h>
 
-#include "game.h"
+#include "game.hpp"
 
 using namespace std;
 

@@ -1,9 +1,8 @@
 #include <iostream>
-#include <string>
 #include <fstream>
 
-#include "game.h"
-#include "board.h"
+#include "game.hpp"
+#include "board.hpp"
 
 using namespace std;
 
