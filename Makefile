@@ -12,7 +12,7 @@ EXECUTABLE := $(BIN_DIR)/test
 
 .PHONY: all clean run
 
-all: $(EXECUTABLE)
+all: clean $(EXECUTABLE)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
@@ -26,3 +26,4 @@ clean:
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
+

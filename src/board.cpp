@@ -1,23 +1,8 @@
-#pragma once
+#include "game.hpp"
 
 #include <string>
 
-enum Piece{
-    WHITE_KING = 'K',
-    WHITE_QUEEN = 'Q',
-    WHITE_ROOK = 'R',
-    WHITE_BISHOP = 'B',
-    WHITE_KNIGHT = 'N',
-    WHITE_PAWN = 'P',
-    BLACK_KING = 'k',
-    BLACK_QUEEN = 'q',
-    BLACK_ROOK = 'r',
-    BLACK_BISHOP = 'b',
-    BLACK_KNIGHT = 'n',
-    BLACK_PAWN = 'p'
-};
-
-int piece_to_int(char piece){
+int Game::piece_to_int(char piece){
     if (piece == 'K' || piece == 'k') return 0;
     if (piece == 'Q' || piece == 'q') return 1;
     if (piece == 'R' || piece == 'r') return 2;
@@ -27,11 +12,11 @@ int piece_to_int(char piece){
     return -1;
 }
 
-bool is_white_piece(int piece){
+bool Game::is_white_piece(int piece){
     return piece >= 'A' && piece <= 'Z';
 }
 
-int** fen_to_board(std::string fen){
+int** Game::fen_to_board(std::string fen){
     // board is 2d 8x8 int array
     int** board = new int*[8];
     for (int i = 0; i < 8; i++){
@@ -55,4 +40,3 @@ int** fen_to_board(std::string fen){
     }
     return board;
 }
-

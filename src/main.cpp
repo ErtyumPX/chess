@@ -1,7 +1,3 @@
-#include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_timer.h>
-
 #include "game.hpp"
 
 using namespace std;
