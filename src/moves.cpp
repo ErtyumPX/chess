@@ -87,9 +87,10 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
+
                         for (int z = 0; z < move_info.p_size(x, y); z++){
-                            if (current_move.possible[z][0] == -1) break;
-                            if (current_move.possible[z][0] == new_x && current_move.possible[z][1] == new_y){
+                            // an issue lies here
+                            if (move_info.take(x, y).possible[z][0] == new_x && move_info.take(x, y).possible[z][1] == new_y){
                                 any_threat = true;
                                 break;
                             }
