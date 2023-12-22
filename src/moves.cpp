@@ -28,12 +28,12 @@ bool Game::move_piece(int piece[2], int square[2]){
         }
     }
     if (!is_move_valid) return false;
+    log_move(piece, square, move_counter); // it is important to log before applying the change
     board[square[0]][square[1]] = board[piece[0]][piece[1]];
     board[piece[0]][piece[1]] = 0;
     is_whites_turn = !is_whites_turn;
-    update_move_info();
-    log_move(piece, square, move_counter);
     move_counter++;
+    update_move_info();
     return true;
 }
 
@@ -44,6 +44,19 @@ void Game::move_selected(int square[2]){
     selected_piece[1] = -1;
 }
 
+
+void Game::take_back(short times){
+    for (int i = 0; i < times; i++){
+    if (prev_moves.size() == 0) return;
+    MoveLog log = prev_moves[move_counter - 1];
+    board[log.x1][log.y1] = log.piece1;
+    board[log.x2][log.y2] = log.piece2;
+    prev_moves.pop_back();
+    is_whites_turn = !is_whites_turn;
+    move_counter--;
+    update_move_info();
+    }
+}
 
 void Game::update_move_info(){
     move_info.clear();

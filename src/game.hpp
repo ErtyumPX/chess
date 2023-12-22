@@ -28,13 +28,13 @@ enum Piece {
 
 
 struct MoveLog {
+    ushort index;
     ushort x1;
     ushort y1;
-    char piece1;
     ushort x2;
     ushort y2;
+    char piece1;
     char piece2;
-    ushort index;
 };
 
 
@@ -158,6 +158,7 @@ class Game{
     private:
         bool move_piece(int piece[2], int square[2]);
         void move_selected(int square[2]);
+        void take_back(short times = 1);
         void log_move(int piece[2], int square[2], int index);
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
