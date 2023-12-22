@@ -6,6 +6,19 @@ int bishop_moves[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
 
+void Game::log_move(int piece[2], int square[2], int index){
+    MoveLog log;
+    log.x1 = piece[0];
+    log.y1 = piece[1];
+    log.piece1 = board[piece[0]][piece[1]];
+    log.x2 = square[0];
+    log.y2 = square[1];
+    log.piece2 = board[square[0]][square[1]];
+    log.index = index;
+    prev_moves.push_back(log);
+}
+
+
 bool Game::move_piece(int piece[2], int square[2]){
     bool is_move_valid = false;
     for (int i = 0; i < move_info.p_size(piece); i++){
@@ -19,6 +32,8 @@ bool Game::move_piece(int piece[2], int square[2]){
     board[piece[0]][piece[1]] = 0;
     is_whites_turn = !is_whites_turn;
     update_move_info();
+    log_move(piece, square, move_counter);
+    move_counter++;
     return true;
 }
 

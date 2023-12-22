@@ -10,6 +10,7 @@
 
 using namespace std;
 
+
 enum Piece {
     WHITE_KING = 'K',
     WHITE_QUEEN = 'Q',
@@ -26,7 +27,18 @@ enum Piece {
 };
 
 
-struct Move {
+struct MoveLog {
+    ushort x1;
+    ushort y1;
+    char piece1;
+    ushort x2;
+    ushort y2;
+    char piece2;
+    ushort index;
+};
+
+
+class Move {
     public:
         vector<vector<int>> possible;
         vector<vector<int>> controlled;
@@ -49,7 +61,7 @@ struct Move {
 };
 
 
-struct MoveInfo{
+class MoveInfo{
     public:
         Move all_moves[8][8];
 
@@ -126,8 +138,10 @@ class Game{
         // game Logic
         bool whites_turn = true;
         int selected_piece[2] = {-1, -1};
+        bool is_dragging = false;
         MoveInfo move_info;
-        int prev_moves[100][2];
+        vector<MoveLog> prev_moves; // array of [x1, y1, x2, y2]
+        int move_counter = 0; // move_counter % 2 == 0 -> white's turn
         bool is_whites_turn;
 
         // game Loop
@@ -144,6 +158,7 @@ class Game{
     private:
         bool move_piece(int piece[2], int square[2]);
         void move_selected(int square[2]);
+        void log_move(int piece[2], int square[2], int index);
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
         void update_move_info();
