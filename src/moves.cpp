@@ -78,6 +78,7 @@ void Game::get_valid_moves(int piece[2]){
                 int new_x = piece[0] + king_moves[i][0];
                 int new_y = piece[1] + king_moves[i][1];
                 if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+                current_move.c_add(new_x, new_y);
                 // controlled_squares[new_x][new_y][0][0] = piece[0];
                 if (is_white_piece(board[new_x][new_y])) continue;
                 bool any_threat = false;
@@ -87,9 +88,7 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
-
                         for (int z = 0; z < move_info.p_size(x, y); z++){
-                            // an issue lies here
                             if (move_info.take(x, y).possible[z][0] == new_x && move_info.take(x, y).possible[z][1] == new_y){
                                 any_threat = true;
                                 break;
@@ -98,7 +97,7 @@ void Game::get_valid_moves(int piece[2]){
                     }
                 }
                 if (!any_threat){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                 }
             }
         }
@@ -112,11 +111,12 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
+                current_move.c_add(new_x, new_y);
                 if (board[new_x][new_y] == 0){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                     break;
                 }
                 else break;
@@ -129,11 +129,12 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
+                current_move.c_add(new_x, new_y);
                 if (board[new_x][new_y] == 0){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                     break;
                 }
                 else break;
@@ -148,11 +149,12 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
+                current_move.c_add(new_x, new_y);
                 if (board[new_x][new_y] == 0){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                     break;
                 }
                 else break;
@@ -167,11 +169,12 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
+                current_move.c_add(new_x, new_y);
                 if (board[new_x][new_y] == 0){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    current_move.possible.push_back({new_x, new_y});
+                    current_move.p_add(new_x, new_y);
                     break;
                 }
                 else break;
@@ -186,8 +189,9 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+            current_move.c_add(new_x, new_y);
             if (board[new_x][new_y] == 0 || is_white_piece(board[new_x][new_y]) != is_white){
-                current_move.possible.push_back({new_x, new_y});
+                current_move.p_add(new_x, new_y);
             }
         }
         break;
@@ -195,10 +199,10 @@ void Game::get_valid_moves(int piece[2]){
         // by rule, pawns cannot make it out of the board, they would promote
         // so horizontal moves will not be checked if they are out of the board
         if (board[piece[0]][piece[1] + direction] == 0){
-            current_move.possible.push_back({piece[0], piece[1] + direction});
+            current_move.p_add(piece[0], piece[1] + direction);
             if (piece[1] == starting_y && board[piece[0]][piece[1] + 2 * direction] == 0){
                 // check if can move 2 squares
-                current_move.possible.push_back({piece[0], piece[1] + direction * 2});
+                current_move.p_add(piece[0], piece[1] + direction * 2);
             }
         }
         // check for attacking moves
@@ -206,8 +210,9 @@ void Game::get_valid_moves(int piece[2]){
             int new_x = piece[0] + attack_moves[i][0];
             int new_y = piece[1] + attack_moves[i][1];
             if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+            current_move.c_add(new_x, new_y);
             if (is_white_piece(board[new_x][new_y]) != is_white && board[new_x][new_y] != 0){
-                current_move.possible.push_back({new_x, new_y});
+                current_move.p_add(new_x, new_y);
             }
         }
         break;
