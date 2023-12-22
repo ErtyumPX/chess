@@ -57,9 +57,9 @@ Game::Game(int width, int height){
         SDL_Texture* texture = IMG_LoadTexture(renderer, path.c_str());
         black_pieces[i] = texture;
     }
-
     cout << "Game initialized." << endl;
 }
+
 
 Game::~Game(){
     SDL_DestroyWindow(window);
@@ -72,12 +72,14 @@ Game::~Game(){
     cout << "Game deconstructed." << endl;
 }
 
+
 void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
     board = fen_to_board(fen);
     is_whites_turn = true;
-    update_possible_moves();
+    update_move_info();
 }
+
 
 void Game::print_board(){
     cout << endl;
@@ -90,6 +92,7 @@ void Game::print_board(){
     cout << endl;
 }
 
+
 int Game::mouse_to_square(int mouse_x, int mouse_y){
     int square_x = (mouse_x - board_x) / board_unit;
     int square_y = (mouse_y - board_y) / board_unit;
@@ -97,11 +100,13 @@ int Game::mouse_to_square(int mouse_x, int mouse_y){
     return square_x * 8 + square_y;
 }
 
+
 void Game::select_piece(int piece[2]){
     if (is_white_piece(board[piece[0]][piece[1]]) != is_whites_turn) return;
     selected_piece[0] = piece[0];
     selected_piece[1] = piece[1];
 }
+
 
 void Game::handle_left_mouse(){
     int square_vector[2] = {current_square / 8, current_square % 8};
@@ -117,6 +122,7 @@ void Game::handle_left_mouse(){
         select_piece(square_vector);
     }
 }
+
 
 void Game::handle_events(){
     // mouse events
@@ -156,6 +162,7 @@ void Game::handle_events(){
     }         
 }
 
+
 SDL_Texture* Game::get_texture(int piece){
     if (piece >= 'A' && piece <= 'Z'){
         return white_pieces[piece_to_int(piece)];
@@ -163,6 +170,7 @@ SDL_Texture* Game::get_texture(int piece){
         return black_pieces[piece_to_int(piece)];
     }
 }
+
 
 void Game::render(){
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -192,20 +200,20 @@ void Game::render(){
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
         current_rect = {board_x + selected_piece[0] * board_unit, board_y + selected_piece[1] * board_unit, board_unit, board_unit};
         SDL_RenderFillRect(renderer, &current_rect);
-        for (int i = 0; i < 27; i++){
-            if (possible_moves[selected_piece[0]][selected_piece[1]][i][0] == -1) break;
-            int x = possible_moves[selected_piece[0]][selected_piece[1]][i][0];
-            int y = possible_moves[selected_piece[0]][selected_piece[1]][i][1];
+        Move move = move_info.take(selected_piece);
+        for (int i = 0; i < move_info.p_size(selected_piece); i++){
+            int x = move.possible[i][0];
+            int y = move.possible[i][1];
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
             current_rect = {board_x + x * board_unit, board_y + y * board_unit, board_unit, board_unit};
             SDL_RenderFillRect(renderer, &current_rect);
         }
     }
-    
 
     SDL_RenderPresent(renderer);
 
 }
+
 
 void Game::loop(){
     next_time = SDL_GetTicks() + TICK_INTERVAL;

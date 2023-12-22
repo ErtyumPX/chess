@@ -5,11 +5,11 @@ int knight_moves[8][2] = {{2, 1}, {2, -1}, {1, 2}, {1, -2}, {-1, -2}, {-1, 2}, {
 int bishop_moves[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
+
 bool Game::move_piece(int piece[2], int square[2]){
     bool is_move_valid = false;
-    for (int i = 0; i < 27; i++){
-        if(possible_moves[piece[0]][piece[1]][i][0] == -1) break;
-        if (possible_moves[piece[0]][piece[1]][i][0] == square[0] && possible_moves[piece[0]][piece[1]][i][1] == square[1]){
+    for (int i = 0; i < move_info.p_size(piece); i++){
+        if (move_info.take(piece).possible[i][0] == square[0] && move_info.take(piece).possible[i][1] == square[1]){
             is_move_valid = true;
             break;
         }
@@ -18,9 +18,10 @@ bool Game::move_piece(int piece[2], int square[2]){
     board[square[0]][square[1]] = board[piece[0]][piece[1]];
     board[piece[0]][piece[1]] = 0;
     is_whites_turn = !is_whites_turn;
-    update_possible_moves();
+    update_move_info();
     return true;
 }
+
 
 void Game::move_selected(int square[2]){
     move_piece(selected_piece, square);
@@ -28,7 +29,9 @@ void Game::move_selected(int square[2]){
     selected_piece[1] = -1;
 }
 
-void Game::update_possible_moves(){
+
+void Game::update_move_info(){
+    move_info.clear();
     // spare kings so that they may face threats at last
     int white_king[2] = {-1, -1};
     int black_king[2] = {-1, -1};
@@ -50,18 +53,13 @@ void Game::update_possible_moves(){
             }
         }
     }
-
     // calculate king moves at last
-    get_valid_moves(white_king);
-    get_valid_moves(black_king);
+    if (white_king[0] != -1) get_valid_moves(white_king);
+    if (black_king[0] != -1) get_valid_moves(black_king);
 }
 
-void Game::get_valid_moves(int piece[2]){
-    for (int z = 0; z < 27; z++){
-        possible_moves[piece[0]][piece[1]][z][0] = -1;
-        possible_moves[piece[0]][piece[1]][z][1] = -1;
-    }
-    int cursor;
+
+void Game::get_valid_moves(int piece[2]){    
     char piece_char = board[piece[0]][piece[1]];
     // get if black or white
     bool is_white = is_white_piece(piece_char);
@@ -69,7 +67,9 @@ void Game::get_valid_moves(int piece[2]){
     // for pawns
     int starting_y = is_white ? 6 : 1;
     int direction = is_white ? -1 : 1;  
-    int attack_moves[2][2] = {{1, direction}, {-1, direction}};  
+    int attack_moves[2][2] = {{1, direction}, {-1, direction}};
+
+    Move current_move;
     switch (normal_piece)
     {
     case BLACK_KING: // only the king and pawn has differs from white to black
@@ -78,6 +78,7 @@ void Game::get_valid_moves(int piece[2]){
                 int new_x = piece[0] + king_moves[i][0];
                 int new_y = piece[1] + king_moves[i][1];
                 if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+                // controlled_squares[new_x][new_y][0][0] = piece[0];
                 if (is_white_piece(board[new_x][new_y])) continue;
                 bool any_threat = false;
                 for (int x = 0; x < 8; x++){
@@ -86,9 +87,9 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
-                        for (int z = 0; z < 27; z++){
-                            if (possible_moves[x][y][z][0] == -1) break;
-                            if (possible_moves[x][y][z][0] == new_x && possible_moves[x][y][z][1] == new_y){
+                        for (int z = 0; z < move_info.p_size(x, y); z++){
+                            if (current_move.possible[z][0] == -1) break;
+                            if (current_move.possible[z][0] == new_x && current_move.possible[z][1] == new_y){
                                 any_threat = true;
                                 break;
                             }
@@ -96,33 +97,25 @@ void Game::get_valid_moves(int piece[2]){
                     }
                 }
                 if (!any_threat){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                 }
-                
             }
         }
-        else {
+        else { // if it's black king
 
         }
         break;
     case BLACK_QUEEN:
-        cursor = 0;
         for (int i = 0; i < 4; i++){
             int move[2] = {bishop_moves[i][0], bishop_moves[i][1]};
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
                 if (board[new_x][new_y] == 0){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                     break;
                 }
                 else break;
@@ -136,14 +129,10 @@ void Game::get_valid_moves(int piece[2]){
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
                 if (board[new_x][new_y] == 0){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                     break;
                 }
                 else break;
@@ -153,21 +142,16 @@ void Game::get_valid_moves(int piece[2]){
         }
         break;
     case BLACK_ROOK:
-        cursor = 0;
         for (int i = 0; i < 4; i++){
             int move[2] = {rook_moves[i][0], rook_moves[i][1]};
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
                 if (board[new_x][new_y] == 0){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                     break;
                 }
                 else break;
@@ -177,21 +161,16 @@ void Game::get_valid_moves(int piece[2]){
         }
         break;
     case BLACK_BISHOP:
-        cursor = 0;
         for (int i = 0; i < 4; i++){
             int move[2] = {bishop_moves[i][0], bishop_moves[i][1]};
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             while (new_x >= 0 && new_x <= 7 && new_y >= 0 && new_y <= 7){
                 if (board[new_x][new_y] == 0){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                 }
                 else if (is_white_piece(board[new_x][new_y]) != is_white){
-                    possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                    possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                    cursor++;
+                    current_move.possible.push_back({new_x, new_y});
                     break;
                 }
                 else break;
@@ -201,32 +180,24 @@ void Game::get_valid_moves(int piece[2]){
         }
         break;
     case BLACK_KNIGHT:
-        cursor = 0;
         for (int i = 0; i < 8; i++){
             int move[2] = {knight_moves[i][0], knight_moves[i][1]};
             int new_x = piece[0] + move[0];
             int new_y = piece[1] + move[1];
             if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
             if (board[new_x][new_y] == 0 || is_white_piece(board[new_x][new_y]) != is_white){
-                possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                cursor++;
+                current_move.possible.push_back({new_x, new_y});
             }
         }
         break;
     case BLACK_PAWN:
         // by rule, pawns cannot make it out of the board, they would promote
         // so horizontal moves will not be checked if they are out of the board
-        cursor = 0;
         if (board[piece[0]][piece[1] + direction] == 0){
-            possible_moves[piece[0]][piece[1]][0][0] = piece[0];
-            possible_moves[piece[0]][piece[1]][0][1] = piece[1] + direction;
-            cursor++;
+            current_move.possible.push_back({piece[0], piece[1] + direction});
             if (piece[1] == starting_y && board[piece[0]][piece[1] + 2 * direction] == 0){
                 // check if can move 2 squares
-                possible_moves[piece[0]][piece[1]][cursor][0] = piece[0];
-                possible_moves[piece[0]][piece[1]][cursor][1] = piece[1] + 2 * direction;
-                cursor++;
+                current_move.possible.push_back({piece[0], piece[1] + direction * 2});
             }
         }
         // check for attacking moves
@@ -235,9 +206,7 @@ void Game::get_valid_moves(int piece[2]){
             int new_y = piece[1] + attack_moves[i][1];
             if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
             if (is_white_piece(board[new_x][new_y]) != is_white && board[new_x][new_y] != 0){
-                possible_moves[piece[0]][piece[1]][cursor][0] = new_x;
-                possible_moves[piece[0]][piece[1]][cursor][1] = new_y;
-                cursor++;
+                current_move.possible.push_back({new_x, new_y});
             }
         }
         break;
@@ -245,4 +214,5 @@ void Game::get_valid_moves(int piece[2]){
         cout << "Invalid piece: " << piece_char << endl;
         break;
     }
+    move_info.put(piece, current_move);
 }

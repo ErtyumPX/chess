@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -22,6 +23,83 @@ enum Piece {
     BLACK_BISHOP = 'b',
     BLACK_KNIGHT = 'n',
     BLACK_PAWN = 'p'
+};
+
+
+struct Move {
+    public:
+        vector<vector<int>> possible;
+        vector<vector<int>> controlled;
+
+        void p_add(int x, int y){
+            possible.push_back({x, y});
+        }
+
+        void p_add(int square[2]){
+            possible.push_back({square[0], square[1]});
+        }
+
+        void c_add(int x, int y){
+            controlled.push_back({x, y});
+        }
+
+        void c_add(int square[2]){
+            controlled.push_back({square[0], square[1]});
+        }
+};
+
+
+struct MoveInfo{
+    public:
+        Move all_moves[8][8];
+
+        MoveInfo(){
+            for (int x = 0; x < 8; x++){
+                for (int y = 0; y < 8; y++){
+                    all_moves[x][y] = Move();
+                }
+            }
+        }
+
+        void clear(){
+            for (int x = 0; x < 8; x++){
+                for (int y = 0; y < 8; y++){
+                    all_moves[x][y] = Move();
+                }
+            }
+        }
+
+        Move take(int x, int y){
+            return all_moves[x][y];
+        }
+
+        Move take(int piece[2]){
+            return all_moves[piece[0]][piece[1]];
+        }
+
+        void put(int x, int y, Move move){
+            all_moves[x][y] = move;
+        }
+
+        void put(int piece[2], Move move){
+            all_moves[piece[0]][piece[1]] = move;
+        }
+
+        int p_size(int x, int y){
+            return all_moves[x][y].possible.size();
+        }
+
+        int p_size(int piece[2]){
+            return all_moves[piece[0]][piece[1]].possible.size();
+        }
+
+        int c_size(int x, int y){
+            return all_moves[x][y].controlled.size();
+        }
+
+        int c_size(int piece[2]){
+            return all_moves[piece[0]][piece[1]].controlled.size();
+        }
 };
 
 
@@ -48,7 +126,7 @@ class Game{
         // game Logic
         bool whites_turn = true;
         int selected_piece[2] = {-1, -1};
-        int possible_moves[8][8][27][2];
+        MoveInfo move_info;
         int prev_moves[100][2];
         bool is_whites_turn;
 
@@ -68,7 +146,7 @@ class Game{
         void move_selected(int square[2]);
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
-        void update_possible_moves();
+        void update_move_info();
         void get_valid_moves(int piece[2]);
         void select_piece(int piece[2]);
         void handle_left_mouse();
