@@ -7,6 +7,9 @@ int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
 
 
 void Game::log_move(int piece[2], int square[2], int index){
+    if (index < (int)prev_moves.size()){
+        prev_moves.erase(prev_moves.begin() + index, prev_moves.end());
+    }
     MoveLog log;
     log.x1 = piece[0];
     log.y1 = piece[1];
@@ -47,16 +50,29 @@ void Game::move_selected(int square[2]){
 
 void Game::take_back(short times){
     for (int i = 0; i < times; i++){
-    if (prev_moves.size() == 0) return;
-    MoveLog log = prev_moves[move_counter - 1];
-    board[log.x1][log.y1] = log.piece1;
-    board[log.x2][log.y2] = log.piece2;
-    prev_moves.pop_back();
-    is_whites_turn = !is_whites_turn;
-    move_counter--;
-    update_move_info();
+        if (move_counter == 0) break;
+        move_counter--;
+        MoveLog log = prev_moves[move_counter];
+        board[log.x1][log.y1] = log.piece1;
+        board[log.x2][log.y2] = log.piece2;
+        is_whites_turn = !is_whites_turn;
     }
+    update_move_info();
 }
+
+
+void Game::go_forward(short times){
+    for (int i = 0; i < times; i++){
+        if (move_counter >= (int)prev_moves.size()) break;
+        move_counter++;
+        MoveLog log = prev_moves[move_counter - 1];
+        board[log.x1][log.y1] = 0;
+        board[log.x2][log.y2] = log.piece1;
+        is_whites_turn = !is_whites_turn;
+    }
+    update_move_info();
+}
+
 
 void Game::update_move_info(){
     move_info.clear();
@@ -66,7 +82,10 @@ void Game::update_move_info(){
 
     for (int x = 0; x < 8; x++){
         for (int y = 0; y < 8; y++){
-            if (board[x][y] == 0) continue;
+            if (board[x][y] == 0){
+                move_info.put(x, y, Move());
+                continue;
+            }
             if (board[x][y] == WHITE_KING){
                 white_king[0] = x;
                 white_king[1] = y;

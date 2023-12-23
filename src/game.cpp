@@ -151,9 +151,11 @@ void Game::handle_events(){
             case SDLK_r:
                 restart = true;
                 break;
-            // if left arrow button is pressed
             case SDLK_LEFT:
                 take_back();
+                break;
+            case SDLK_RIGHT:
+                go_forward();
                 break;
             default:
                 break;
