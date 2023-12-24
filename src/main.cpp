@@ -2,8 +2,8 @@
 
 using namespace std;
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 900
+#define WINDOW_HEIGHT 900
 
 
 Game *game = nullptr;

@@ -126,7 +126,6 @@ void Game::get_valid_moves(int piece[2]){
                 int new_y = piece[1] + king_moves[i][1];
                 if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
                 current_move.c_add(new_x, new_y);
-                // controlled_squares[new_x][new_y][0][0] = piece[0];
                 if (is_white_piece(board[new_x][new_y])) continue;
                 bool any_threat = false;
                 for (int x = 0; x < 8; x++){
