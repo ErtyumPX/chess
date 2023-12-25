@@ -33,26 +33,36 @@ bool Game::move_piece(int piece[2], int square[2]){
     if (!is_move_valid) return false;
     log_move(piece, square, move_counter); // it is important to log before applying the change
 
-    bool just_set_en_passant = false;
     if (tolower(board[piece[0]][piece[1]]) == BLACK_PAWN){ // if it's a pawn
         if (abs(piece[0] - square[0]) == 1 && board[square[0]][square[1]] == 0){ 
             // if it's an en-passant move
             SDL_assert(en_passant_square[0] == square[0]);
             SDL_assert(en_passant_square[1] == piece[1]);
             board[square[0]][piece[1]] = 0;
-            en_passant_square[0] = -1;
-            en_passant_square[0] = -1;
         }
-        else if(abs(piece[1] - square[1]) == 2){
+        if(abs(piece[1] - square[1]) == 2){
+            // if the pawn made a double move, hold its square
             en_passant_square[0] = square[0];
             en_passant_square[1] = square[1];
-            just_set_en_passant = true;
+        }
+        else{
+            // if not holding any en-passant square for the next turn, just remove it
+            en_passant_square[0] = -1;
+            en_passant_square[1] = -1;   
+        }
+        int starting_y = is_white_piece(board[piece[0]][piece[1]]) ? 6 : 1;
+        if (abs(starting_y - square[1]) == 6){ // promoting
+            // promote
+        }
+        else{ // if not promoting, then continue normally
+            board[square[0]][square[1]] = board[piece[0]][piece[1]];
+            board[piece[0]][piece[1]] = 0;
         }
     }
-
-    board[square[0]][square[1]] = board[piece[0]][piece[1]];
-    board[piece[0]][piece[1]] = 0;
-    if (!just_set_en_passant){
+    else
+    {
+        board[square[0]][square[1]] = board[piece[0]][piece[1]];
+        board[piece[0]][piece[1]] = 0;
         en_passant_square[0] = -1;
         en_passant_square[1] = -1;   
     }
