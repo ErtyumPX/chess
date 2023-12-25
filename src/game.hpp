@@ -144,6 +144,9 @@ class Game{
         int move_counter = 0; // move_counter % 2 == 0 -> white's turn
         bool is_whites_turn;
 
+        // en passant
+        int en_passant_square[2] = {-1, -1};
+
         // game Loop
         bool quit = false;
         bool restart = false;
