@@ -116,7 +116,7 @@ class MoveInfo{
 
 
 class Game{
-    private: // private variables
+    public:
         // window Rendering
         int width;
         int height;
@@ -149,13 +149,13 @@ class Game{
         bool restart = false;
 
     public:
-        Game(int width, int height);
+        Game();
         ~Game();
+        void initialize(int width, int height);
         void create_board(string fen = "");
         void render();
         void loop();
 
-    private:
         bool move_piece(int piece[2], int square[2]);
         void move_selected(int square[2]);
         void take_back(short times = 1);

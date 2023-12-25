@@ -21,11 +21,28 @@ Uint32 time_left(void)
 
 // removing  "w KQkq - 0 1" for now
 #define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" 
-#define WHITE_PIECE_DIR "assets/white/{}.png"
-#define BLACK_PIECE_DIR "assets/black/{}.png"
+#define WHITE_PIECE_DIR "/home/erthium/Projects/chess/assets/white/{}.png"
+#define BLACK_PIECE_DIR "/home/erthium/Projects/chess/assets/black/{}.png"
 
 
-Game::Game(int width, int height){
+Game::Game(){
+
+}
+
+
+Game::~Game(){
+    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(renderer);
+    SDL_Quit();
+    for (int i = 0; i < 8; i++){
+        delete[] board[i];
+    }
+    delete[] board;
+    cout << "Game deconstructed." << endl;
+}
+
+
+void Game::initialize(int width, int height){
     this->width = width;
     this->height = height;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -58,18 +75,6 @@ Game::Game(int width, int height){
         black_pieces[i] = texture;
     }
     cout << "Game initialized." << endl;
-}
-
-
-Game::~Game(){
-    SDL_DestroyWindow(window);
-    SDL_DestroyRenderer(renderer);
-    SDL_Quit();
-    for (int i = 0; i < 8; i++){
-        delete[] board[i];
-    }
-    delete[] board;
-    cout << "Game deconstructed." << endl;
 }
 
 

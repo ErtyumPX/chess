@@ -1,5 +1,6 @@
 CC := g++
 CFLAGS := -Wall -std=c++11 -Iinclude/SDL2
+TEST_CFLAGS := -Wall -std=c++11 -Iinclude/SDL2 -Isrc/
 LDFLAGS := -lSDL2 -lSDL2_image
 
 SRC_DIR := src
@@ -31,7 +32,7 @@ test: $(TEST_EXECUTABLE)
 
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(TEST_CFLAGS) -c $< -o $@
 
 $(TEST_EXECUTABLE): $(TEST_OBJ) $(filter-out $(BUILD_DIR)/main.o, $(OBJ))
 	$(CC) $^ -o $@ $(LDFLAGS)

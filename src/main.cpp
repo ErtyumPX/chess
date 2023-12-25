@@ -8,7 +8,8 @@ using namespace std;
 
 Game *game = nullptr;
 int main(){
-    game = new Game(WINDOW_WIDTH, WINDOW_HEIGHT);
+    game = new Game();
+    game->initialize(WINDOW_WIDTH, WINDOW_HEIGHT);
     game->create_board();
     game->loop(); // we can think about making the loop directly in main
     delete game;
