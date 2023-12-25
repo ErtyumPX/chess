@@ -25,6 +25,9 @@ To run tests and check if everything works:
 > make test
 ```
 
+Since SDL2 is a cross-platform media library, output should work on Windows, MacOS and Linux.
+
+
 ## Project
 
 Will be written soon...
