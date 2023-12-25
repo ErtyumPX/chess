@@ -12,7 +12,18 @@ Project is currently compiled with GNU G++ 13.2.1.
 
 The only third-party dependency is SDL2. Used version of SDL2 in project is 2.28.5, should work as long as is SDL2 and not SDL.
 
-After fulfilling dependencies, download or clone the project; then use Makefile to easily compile:
+For compiling and linking rules GNU Make 4.4.1 was used. After downloading dependencies, make sure to change the include paths inside the Makefile.
+
+```
+# change the paths for '-I' 
+CC := g++
+CFLAGS := -Wall -std=c++11 -I/usr/include/SDL2           # here
+TEST_CFLAGS := -Wall -std=c++11 -Iinclude/SDL2 -Isrc/    # and here
+LDFLAGS := -lSDL2 -lSDL2_image
+...
+```
+
+After fulfilling dependencies, download or clone the project and use Makefile to easily compile:
 
 ```
 > make all
