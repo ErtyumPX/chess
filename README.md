@@ -41,4 +41,12 @@ Since SDL2 is a cross-platform media library, output should work on Windows, Mac
 
 ## Project
 
-Will be written soon...
+For now, looks like this:
+
+----------
+
+![screenshot-2023-12-26_02:37:12](https://github.com/ErtyumPX/chess/assets/49292808/79e8ca6b-f34f-47a5-bbc9-d6ece3a45670)
+
+----------
+
+Details will be  written soon...
