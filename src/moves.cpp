@@ -52,7 +52,8 @@ bool Game::move_piece(int piece[2], int square[2]){
         }
         int starting_y = is_white_piece(board[piece[0]][piece[1]]) ? 6 : 1;
         if (abs(starting_y - square[1]) == 6){ // promoting
-            // promote
+            board[piece[0]][piece[1]] = 0;
+            promote(square);
         }
         else{ // if not promoting, then continue normally
             board[square[0]][square[1]] = board[piece[0]][piece[1]];
@@ -77,6 +78,11 @@ void Game::move_selected(int square[2]){
     move_piece(selected_piece, square);
     selected_piece[0] = -1;
     selected_piece[1] = -1;
+}
+
+
+void Game::promote(int square[2]){
+    board[square[0]][square[1]] = square[1] == 0 ? WHITE_QUEEN  : BLACK_QUEEN;
 }
 
 
