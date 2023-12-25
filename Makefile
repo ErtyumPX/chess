@@ -1,5 +1,5 @@
 CC := g++
-CFLAGS := -Wall -std=c++11 -Iinclude/SDL2
+CFLAGS := -Wall -std=c++11 -I/usr/include/SDL2
 TEST_CFLAGS := -Wall -std=c++11 -Iinclude/SDL2 -Isrc/
 LDFLAGS := -lSDL2 -lSDL2_image
 
