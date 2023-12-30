@@ -115,8 +115,11 @@ class MoveInfo{
 };
 
 
+class Tester;
+
+
 class Game{
-    public:
+    private:
         // window Rendering
         int width;
         int height;
@@ -155,7 +158,8 @@ class Game{
         void create_board(string fen = "");
         void render();
         void loop();
-
+    
+    private:
         bool move_piece(int piece[2], int square[2]);
         void move_selected(int square[2]);
         void take_back(short times = 1);
@@ -172,4 +176,5 @@ class Game{
         int piece_to_int(char piece);
         bool is_white_piece(int piece);
         int** fen_to_board(std::string fen);
+    friend class Tester;
 };

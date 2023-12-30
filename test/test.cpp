@@ -6,8 +6,12 @@ using namespace std;
 #define test_fen_1 "k7/8/8/8/8/8/8/7K w - - 0 1"
 #define test_fen_2 "5rnk/6pb/7q/8/8/Q7/BP6/KNR5 w - - 0 1"
 
+class Tester{
+    public:
+        void test_fen();
+};
 
-void test_fen(){
+void Tester::test_fen(){
     Game game;
     game.create_board(test_fen_1);
     assert(game.board[0][0] == BLACK_KING);
@@ -49,8 +53,9 @@ void test_fen(){
 
 
 int main(){
-    test_fen();
-    cout << "------------------------------------" << endl;
+    Tester tester;
     cout << "Serious tests here, ehem... all done" << endl;
+    cout << "------------------------------------" << endl;
+    tester.test_fen();
     return 0;
 }
