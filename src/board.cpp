@@ -40,3 +40,30 @@ int** Game::fen_to_board(std::string fen){
     }
     return board;
 }
+
+
+string Game::board_to_fen(int** board){
+    string fen = "";
+    for (int y = 0; y < 8; y++){
+        int space_count = 0;
+        for (int x = 0; x < 8; x++){
+            if (board[x][y] == 0){
+                space_count++;
+            } 
+            else {
+                if (space_count != 0){
+                    fen += to_string(space_count);
+                    space_count = 0;
+                }
+                fen += board[x][y];
+            }
+        }
+        if (space_count != 0){
+            fen += to_string(space_count);
+        }
+        if (y != 7){
+            fen += "/";
+        }
+    }
+    return fen;
+}
