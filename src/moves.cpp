@@ -4,6 +4,8 @@ int king_moves[8][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}, {0, 1}, {0, -1}, {1,
 int knight_moves[8][2] = {{2, 1}, {2, -1}, {1, 2}, {1, -2}, {-1, -2}, {-1, 2}, {-2, -1}, {-2, 1}};
 int bishop_moves[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+int w_left_castle_squares[3][2] = {{1, 7}, {2, 7}, {3, 7}};
+int w_right_castle_squares[2][2] = {{5, 7}, {6, 7}};
 
 
 void Game::log_move(int piece[2], int square[2], int index){
@@ -24,7 +26,7 @@ void Game::log_move(int piece[2], int square[2], int index){
 
 bool Game::move_piece(int piece[2], int square[2]){
     bool is_move_valid = false;
-    for (int i = 0; i < move_info.p_size(piece); i++){
+    for (size_t i = 0; i < move_info.p_size(piece); i++){
         if (move_info.take(piece).possible[i][0] == square[0] && move_info.take(piece).possible[i][1] == square[1]){
             is_move_valid = true;
             break;
@@ -169,8 +171,8 @@ void Game::update_move_info(){
 
 void Game::re_check_king_moves(int white_king[2], int black_king[2]){
     // if the kings have any possible moves in common, remove them
-    for (int i = 0; i < move_info.p_size(white_king); i++){
-        for (int j = 0; j < move_info.c_size(black_king); j++){
+    for (size_t i = 0; i < move_info.p_size(white_king); i++){
+        for (size_t j = 0; j < move_info.c_size(black_king); j++){
             if (move_info.take(white_king).possible[i][0] == move_info.take(black_king).controlled[j][0] && move_info.take(white_king).possible[i][1] == move_info.take(black_king).controlled[j][1]){
                 move_info.take(white_king).possible.erase(move_info.take(white_king).possible.begin() + i);
                 i--;
@@ -178,8 +180,8 @@ void Game::re_check_king_moves(int white_king[2], int black_king[2]){
             }
         }
     }
-    for (int i = 0; i < move_info.p_size(black_king); i++){
-        for (int j = 0; j < move_info.c_size(white_king); j++){
+    for (size_t i = 0; i < move_info.p_size(black_king); i++){
+        for (size_t j = 0; j < move_info.c_size(white_king); j++){
             if (move_info.take(black_king).possible[i][0] == move_info.take(white_king).controlled[j][0] && move_info.take(black_king).possible[i][1] == move_info.take(white_king).controlled[j][1]){
                 move_info.take(black_king).possible.erase(move_info.take(black_king).possible.begin() + i);
                 i--;
@@ -190,7 +192,7 @@ void Game::re_check_king_moves(int white_king[2], int black_king[2]){
 }
 
 
-void Game::get_valid_moves(int piece[2]){    
+void Game::get_valid_moves(int piece[2]){
     char piece_char = board[piece[0]][piece[1]];
     // get if black or white
     bool is_white = is_white_piece(piece_char);
@@ -218,7 +220,7 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
-                        for (int z = 0; z < move_info.c_size(x, y); z++){
+                        for (size_t z = 0; z < move_info.c_size(x, y); z++){
                             if (move_info.take(x, y).controlled[z][0] == new_x && move_info.take(x, y).controlled[z][1] == new_y){
                                 any_threat = true;
                                 break;
@@ -228,6 +230,36 @@ void Game::get_valid_moves(int piece[2]){
                 }
                 if (!any_threat){
                     current_move.p_add(new_x, new_y);
+                }
+            }
+            if (piece[0] == 4 && piece[1] == 7){ // white castle availability check
+                if (w_left_castle){ //  left side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 3; i++){
+                        if (board[w_left_castle_squares[i][0]][w_left_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_white_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(w_left_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(w_left_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(w_left_castle_squares[2]) ||
+                                move_info.take(x, y).c_check(4, 7))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(0, 7);
+                    }
                 }
             }
         }
