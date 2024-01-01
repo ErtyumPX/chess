@@ -261,6 +261,33 @@ void Game::get_valid_moves(int piece[2]){
                         current_move.p_add(0, 7);
                     }
                 }
+                if (w_right_castle){ //  left side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 2; i++){
+                        if (board[w_right_castle_squares[i][0]][w_right_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_white_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(w_right_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(w_right_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(4, 7))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(7, 7);
+                    }
+                }
             }
         }
         else { // if it's black king
