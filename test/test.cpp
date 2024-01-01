@@ -2,12 +2,19 @@
 #include <cassert>
 
 using namespace std;
+// "k7/8/8/8/8/8/8/7K w - - 0 1"
+#define test_fen_1 "k7/8/8/8/8/8/8/7K"
+// "5rnk/6pb/7q/8/8/Q7/BP6/KNR5 w - - 0 1"
+#define test_fen_2 "5rnk/6pb/7q/8/8/Q7/BP6/KNR5"
 
-#define test_fen_1 "k7/8/8/8/8/8/8/7K w - - 0 1"
-#define test_fen_2 "5rnk/6pb/7q/8/8/Q7/BP6/KNR5 w - - 0 1"
+class Tester{
+    public:
+        void create_board();
+        void create_fen();
+};
 
 
-void test_fen(){
+void Tester::create_board(){
     Game game;
     game.create_board(test_fen_1);
     assert(game.board[0][0] == BLACK_KING);
@@ -45,12 +52,25 @@ void test_fen(){
         }
     }
     assert(pieces == 12);
+    cout << "PASSED: create_board." << endl;
+}
+
+
+void Tester::create_fen(){
+    Game game;
+    game.create_board(test_fen_1);
+    assert(game.board_to_fen(game.board) == test_fen_1);
+    game.create_board(test_fen_2);
+    assert(game.board_to_fen(game.board) == test_fen_2);
+    cout << "PASSED: create_fen." << endl;
 }
 
 
 int main(){
-    test_fen();
+    Tester tester;
+    cout << "Serious tests here, ehem..." << endl;
     cout << "------------------------------------" << endl;
-    cout << "Serious tests here, ehem... all done" << endl;
+    tester.create_board();
+    tester.create_fen();
     return 0;
 }
