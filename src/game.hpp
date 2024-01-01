@@ -172,6 +172,7 @@ class Game{
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
         void update_move_info();
+        void re_check_king_moves(int white_king[2], int black_king[2]);
         void get_valid_moves(int piece[2]);
         void select_piece(int piece[2]);
         void handle_left_mouse();

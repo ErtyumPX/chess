@@ -141,6 +141,13 @@ void Game::update_move_info(){
     // calculate king moves at last
     if (white_king[0] != -1) get_valid_moves(white_king);
     if (black_king[0] != -1) get_valid_moves(black_king);
+    if (white_king[0] != -1 && black_king[0] != -1) re_check_king_moves(white_king, black_king);
+
+}
+
+
+void Game::re_check_king_moves(int white_king[2], int black_king[2]){
+    // if the kings have any possible moves in common, remove them
 }
 
 
@@ -157,7 +164,7 @@ void Game::get_valid_moves(int piece[2]){
     Move current_move;
     switch (normal_piece)
     {
-    case BLACK_KING: // only the king and pawn has differs from white to black
+    case BLACK_KING: // only the king and pawn moves get affected from white to black // I do not know English
         if (is_white){
             for (int i = 0; i < 8; i++){
                 int new_x = piece[0] + king_moves[i][0];
@@ -172,8 +179,8 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
-                        for (int z = 0; z < move_info.p_size(x, y); z++){
-                            if (move_info.take(x, y).possible[z][0] == new_x && move_info.take(x, y).possible[z][1] == new_y){
+                        for (int z = 0; z < move_info.c_size(x, y); z++){
+                            if (move_info.take(x, y).controlled[z][0] == new_x && move_info.take(x, y).controlled[z][1] == new_y){
                                 any_threat = true;
                                 break;
                             }

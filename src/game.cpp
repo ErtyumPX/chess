@@ -38,7 +38,6 @@ Game::~Game(){
         delete[] board[i];
     }
     delete[] board;
-    cout << "Game deconstructed." << endl;
 }
 
 
