@@ -33,6 +33,26 @@ bool Game::move_piece(int piece[2], int square[2]){
     if (!is_move_valid) return false;
     log_move(piece, square, move_counter); // it is important to log before applying the change
 
+    if (board[piece[0]][piece[1]] == BLACK_ROOK){ // if it's a black rook
+        if (piece[0] == 0 && piece[1] == 0 && b_left_castle) b_left_castle = false;
+        else if (piece[0] == 7 && piece[1] == 0 && b_right_castle) b_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == WHITE_ROOK){ // if it's a white rook
+        if (piece[0] == 0 && piece[1] == 7 && w_left_castle) w_left_castle = false;
+        else if (piece[0] == 7 && piece[1] == 7 && w_right_castle) w_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == BLACK_KING){ // if it's black king, cancel all castles
+        b_left_castle = false;
+        b_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == WHITE_KING){ // if it's white king, cancel all castles
+        w_left_castle = false;
+        w_right_castle = false;
+    }
+
     if (tolower(board[piece[0]][piece[1]]) == BLACK_PAWN){ // if it's a pawn
         if (abs(piece[0] - square[0]) == 1 && board[square[0]][square[1]] == 0){ 
             // if it's an en-passant move
@@ -67,6 +87,7 @@ bool Game::move_piece(int piece[2], int square[2]){
         en_passant_square[0] = -1;
         en_passant_square[1] = -1;   
     }
+    
     is_whites_turn = !is_whites_turn;
     move_counter++;
     update_move_info();

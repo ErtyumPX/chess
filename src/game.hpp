@@ -150,6 +150,12 @@ class Game{
         // en passant
         int en_passant_square[2] = {-1, -1};
 
+        // castling
+        bool w_left_castle = true;
+        bool w_right_castle = true;
+        bool b_left_castle = true;
+        bool b_right_castle = true;
+
         // game Loop
         bool quit = false;
         bool restart = false;
