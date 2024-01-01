@@ -148,6 +148,24 @@ void Game::update_move_info(){
 
 void Game::re_check_king_moves(int white_king[2], int black_king[2]){
     // if the kings have any possible moves in common, remove them
+    for (int i = 0; i < move_info.p_size(white_king); i++){
+        for (int j = 0; j < move_info.c_size(black_king); j++){
+            if (move_info.take(white_king).possible[i][0] == move_info.take(black_king).controlled[j][0] && move_info.take(white_king).possible[i][1] == move_info.take(black_king).controlled[j][1]){
+                move_info.take(white_king).possible.erase(move_info.take(white_king).possible.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
+    for (int i = 0; i < move_info.p_size(black_king); i++){
+        for (int j = 0; j < move_info.c_size(white_king); j++){
+            if (move_info.take(black_king).possible[i][0] == move_info.take(white_king).controlled[j][0] && move_info.take(black_king).possible[i][1] == move_info.take(white_king).controlled[j][1]){
+                move_info.take(black_king).possible.erase(move_info.take(black_king).possible.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
 }
 
 
