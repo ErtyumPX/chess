@@ -32,8 +32,30 @@ bool Game::move_piece(int piece[2], int square[2]){
     }
     if (!is_move_valid) return false;
     log_move(piece, square, move_counter); // it is important to log before applying the change
+
+    bool just_set_en_passant = false;
+    if (tolower(board[piece[0]][piece[1]]) == BLACK_PAWN){ // if it's a pawn
+        if (abs(piece[0] - square[0]) == 1 && board[square[0]][square[1]] == 0){ 
+            // if it's an en-passant move
+            SDL_assert(en_passant_square[0] == square[0]);
+            SDL_assert(en_passant_square[1] == piece[1]);
+            board[square[0]][piece[1]] = 0;
+            en_passant_square[0] = -1;
+            en_passant_square[0] = -1;
+        }
+        else if(abs(piece[1] - square[1]) == 2){
+            en_passant_square[0] = square[0];
+            en_passant_square[1] = square[1];
+            just_set_en_passant = true;
+        }
+    }
+
     board[square[0]][square[1]] = board[piece[0]][piece[1]];
     board[piece[0]][piece[1]] = 0;
+    if (!just_set_en_passant){
+        en_passant_square[0] = -1;
+        en_passant_square[1] = -1;   
+    }
     is_whites_turn = !is_whites_turn;
     move_counter++;
     update_move_info();
@@ -259,6 +281,11 @@ void Game::get_valid_moves(int piece[2]){
             current_move.c_add(new_x, new_y);
             if (is_white_piece(board[new_x][new_y]) != is_white && board[new_x][new_y] != 0){
                 current_move.p_add(new_x, new_y);
+            }
+            if (en_passant_square[0] != -1 && en_passant_square[1] == piece[1]){
+                if (abs(en_passant_square[1] - new_y) == 1 && en_passant_square[0] == new_x){
+                    current_move.p_add(new_x, new_y);
+                }
             }
         }
         break;

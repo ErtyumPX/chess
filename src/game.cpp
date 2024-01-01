@@ -21,8 +21,8 @@ Uint32 time_left(void)
 
 // removing  "w KQkq - 0 1" for now
 #define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" 
-#define WHITE_PIECE_DIR "/home/erthium/Projects/chess/assets/white/{}.png"
-#define BLACK_PIECE_DIR "/home/erthium/Projects/chess/assets/black/{}.png"
+#define WHITE_PIECE_DIR "assets/white/{}.png"
+#define BLACK_PIECE_DIR "assets/black/{}.png"
 
 
 Game::Game(){
