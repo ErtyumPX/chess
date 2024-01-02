@@ -7,16 +7,19 @@ SRC_DIR := src
 BUILD_DIR := build
 BIN_DIR := bin
 TEST_DIR := test
+STABLE_DIR := stable
 
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRC))
-EXECUTABLE := $(BIN_DIR)/game.chess
+EXE_NAME := game.chess
+EXECUTABLE := $(BIN_DIR)/$(EXE_NAME)
+STABLE_EXE := $(STABLE_DIR)/$(EXE_NAME)
 
 TEST_SRC := $(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJ := $(patsubst $(TEST_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(TEST_SRC))
 TEST_EXECUTABLE := $(BIN_DIR)/test.runner
 
-.PHONY: all clean run test
+.PHONY: all clean run test ship stable unplug
 
 all: clean $(EXECUTABLE)
 
@@ -42,3 +45,13 @@ clean:
 
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
+
+ship: $(EXECUTABLE)
+	@mkdir -p $(STABLE_DIR)
+	cp $(EXECUTABLE) $(STABLE_DIR)/
+
+stable: $(STABLE_EXE)
+	./$(STABLE_EXE)
+
+unplug:
+	rm -f $(STABLE_DIR)/*
