@@ -1,6 +1,5 @@
 #include "game.hpp"
 
-#include <string>
 
 int Game::piece_to_int(char piece){
     if (piece == 'K' || piece == 'k') return 0;
@@ -12,9 +11,16 @@ int Game::piece_to_int(char piece){
     return -1;
 }
 
+
 bool Game::is_white_piece(int piece){
-    return piece >= 'A' && piece <= 'Z';
+    return 'A' <= piece && piece <= 'Z';
 }
+
+
+bool Game::is_black_piece(int piece){
+    return 'a' <= piece && piece <= 'z';
+}
+
 
 int** Game::fen_to_board(std::string fen){
     // board is 2d 8x8 int array

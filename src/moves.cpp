@@ -4,6 +4,11 @@ int king_moves[8][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}, {0, 1}, {0, -1}, {1,
 int knight_moves[8][2] = {{2, 1}, {2, -1}, {1, 2}, {1, -2}, {-1, -2}, {-1, 2}, {-2, -1}, {-2, 1}};
 int bishop_moves[4][2] = {{1, 1}, {1, -1}, {-1, -1}, {-1, 1}};
 int rook_moves[4][2] = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+// castling squares
+int w_left_castle_squares[3][2] = {{1, 7}, {2, 7}, {3, 7}};
+int w_right_castle_squares[2][2] = {{5, 7}, {6, 7}};
+int b_left_castle_squares[3][2] = {{1, 0}, {2, 0}, {3, 0}};
+int b_right_castle_squares[2][2] = {{5, 0}, {6, 0}};
 
 
 void Game::log_move(int piece[2], int square[2], int index){
@@ -24,7 +29,7 @@ void Game::log_move(int piece[2], int square[2], int index){
 
 bool Game::move_piece(int piece[2], int square[2]){
     bool is_move_valid = false;
-    for (int i = 0; i < move_info.p_size(piece); i++){
+    for (size_t i = 0; i < move_info.p_size(piece); i++){
         if (move_info.take(piece).possible[i][0] == square[0] && move_info.take(piece).possible[i][1] == square[1]){
             is_move_valid = true;
             break;
@@ -32,6 +37,26 @@ bool Game::move_piece(int piece[2], int square[2]){
     }
     if (!is_move_valid) return false;
     log_move(piece, square, move_counter); // it is important to log before applying the change
+
+    if (board[piece[0]][piece[1]] == BLACK_ROOK){ // if it's a black rook
+        if (piece[0] == 0 && piece[1] == 0 && b_left_castle) b_left_castle = false;
+        else if (piece[0] == 7 && piece[1] == 0 && b_right_castle) b_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == WHITE_ROOK){ // if it's a white rook
+        if (piece[0] == 0 && piece[1] == 7 && w_left_castle) w_left_castle = false;
+        else if (piece[0] == 7 && piece[1] == 7 && w_right_castle) w_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == BLACK_KING){ // if it's black king, cancel all castles
+        b_left_castle = false;
+        b_right_castle = false;
+    }
+
+    if (board[piece[0]][piece[1]] == WHITE_KING){ // if it's white king, cancel all castles
+        w_left_castle = false;
+        w_right_castle = false;
+    }
 
     if (tolower(board[piece[0]][piece[1]]) == BLACK_PAWN){ // if it's a pawn
         if (abs(piece[0] - square[0]) == 1 && board[square[0]][square[1]] == 0){ 
@@ -67,6 +92,7 @@ bool Game::move_piece(int piece[2], int square[2]){
         en_passant_square[0] = -1;
         en_passant_square[1] = -1;   
     }
+    
     is_whites_turn = !is_whites_turn;
     move_counter++;
     update_move_info();
@@ -141,10 +167,35 @@ void Game::update_move_info(){
     // calculate king moves at last
     if (white_king[0] != -1) get_valid_moves(white_king);
     if (black_king[0] != -1) get_valid_moves(black_king);
+    if (white_king[0] != -1 && black_king[0] != -1) re_check_king_moves(white_king, black_king);
+
 }
 
 
-void Game::get_valid_moves(int piece[2]){    
+void Game::re_check_king_moves(int white_king[2], int black_king[2]){
+    // if the kings have any possible moves in common, remove them
+    for (size_t i = 0; i < move_info.p_size(white_king); i++){
+        for (size_t j = 0; j < move_info.c_size(black_king); j++){
+            if (move_info.take(white_king).possible[i][0] == move_info.take(black_king).controlled[j][0] && move_info.take(white_king).possible[i][1] == move_info.take(black_king).controlled[j][1]){
+                move_info.take(white_king).possible.erase(move_info.take(white_king).possible.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
+    for (size_t i = 0; i < move_info.p_size(black_king); i++){
+        for (size_t j = 0; j < move_info.c_size(white_king); j++){
+            if (move_info.take(black_king).possible[i][0] == move_info.take(white_king).controlled[j][0] && move_info.take(black_king).possible[i][1] == move_info.take(white_king).controlled[j][1]){
+                move_info.take(black_king).possible.erase(move_info.take(black_king).possible.begin() + i);
+                i--;
+                break;
+            }
+        }
+    }
+}
+
+
+void Game::get_valid_moves(int piece[2]){
     char piece_char = board[piece[0]][piece[1]];
     // get if black or white
     bool is_white = is_white_piece(piece_char);
@@ -157,9 +208,9 @@ void Game::get_valid_moves(int piece[2]){
     Move current_move;
     switch (normal_piece)
     {
-    case BLACK_KING: // only the king and pawn has differs from white to black
+    case BLACK_KING: // only the king and pawn moves get affected from white to black // I do not know English
         if (is_white){
-            for (int i = 0; i < 8; i++){
+            for (int i = 0; i < 8; i++){ // white king movement
                 int new_x = piece[0] + king_moves[i][0];
                 int new_y = piece[1] + king_moves[i][1];
                 if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
@@ -172,8 +223,8 @@ void Game::get_valid_moves(int piece[2]){
                         if (any_threat) break;
                         if (board[x][y] == 0) continue;
                         if (is_white_piece(board[x][y])) continue;
-                        for (int z = 0; z < move_info.p_size(x, y); z++){
-                            if (move_info.take(x, y).possible[z][0] == new_x && move_info.take(x, y).possible[z][1] == new_y){
+                        for (size_t z = 0; z < move_info.c_size(x, y); z++){
+                            if (move_info.take(x, y).controlled[z][0] == new_x && move_info.take(x, y).controlled[z][1] == new_y){
                                 any_threat = true;
                                 break;
                             }
@@ -184,9 +235,148 @@ void Game::get_valid_moves(int piece[2]){
                     current_move.p_add(new_x, new_y);
                 }
             }
+            if (piece[0] == 4 && piece[1] == 7){ // white castle availability check
+                if (w_left_castle){ // left side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 3; i++){
+                        if (board[w_left_castle_squares[i][0]][w_left_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_white_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(w_left_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(w_left_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(w_left_castle_squares[2]) ||
+                                move_info.take(x, y).c_check(4, 7))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(0, 7);
+                    }
+                }
+                if (w_right_castle){ // right side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 2; i++){
+                        if (board[w_right_castle_squares[i][0]][w_right_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_white_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(w_right_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(w_right_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(4, 7))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(7, 7);
+                    }
+                }
+            }
         }
+        
         else { // if it's black king
-
+            for (int i = 0; i < 8; i++){ // black king movement
+                int new_x = piece[0] + king_moves[i][0];
+                int new_y = piece[1] + king_moves[i][1];
+                if (new_x < 0 || new_x > 7 || new_y < 0 || new_y > 7) continue;
+                current_move.c_add(new_x, new_y);
+                if (is_black_piece(board[new_x][new_y])) continue;
+                bool any_threat = false;
+                for (int x = 0; x < 8; x++){
+                    if (any_threat) break;
+                    for (int y = 0; y < 8; y++){
+                        if (any_threat) break;
+                        if (board[x][y] == 0) continue;
+                        if (is_black_piece(board[x][y])) continue;
+                        for (size_t z = 0; z < move_info.c_size(x, y); z++){
+                            if (move_info.take(x, y).controlled[z][0] == new_x && move_info.take(x, y).controlled[z][1] == new_y){
+                                any_threat = true;
+                                break;
+                            }
+                        }                    
+                    }
+                }
+                if (!any_threat){
+                    current_move.p_add(new_x, new_y);
+                }
+            }
+            if (piece[0] == 4 && piece[1] == 0){ // black castle availability check
+                if (b_left_castle){ // left side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 3; i++){
+                        if (board[b_left_castle_squares[i][0]][b_left_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_black_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(b_left_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(b_left_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(b_left_castle_squares[2]) ||
+                                move_info.take(x, y).c_check(4, 0))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(0, 0);
+                    }
+                }
+                if (b_right_castle){ // right side castle
+                    bool any_obstacle = false;
+                    for (size_t i = 0; i < 2; i++){
+                        if (board[b_right_castle_squares[i][0]][b_right_castle_squares[i][1]] != 0){
+                            any_obstacle = true;
+                            break;
+                        }
+                    }
+                    for (int x = 0; x < 8; x++){
+                        if (any_obstacle) break;
+                        for (int y = 0; y < 8; y++){
+                            if (any_obstacle) break;
+                            if (board[x][y] == 0) continue;
+                            if (is_black_piece(board[x][y])) continue;
+                            if (move_info.take(x, y).c_check(b_right_castle_squares[0]) || 
+                                move_info.take(x, y).c_check(b_right_castle_squares[1]) || 
+                                move_info.take(x, y).c_check(4, 0))
+                            {
+                                any_obstacle = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!any_obstacle){
+                        current_move.p_add(7, 0);
+                    }
+                }
+            }
         }
         break;
     case BLACK_QUEEN:

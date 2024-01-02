@@ -38,7 +38,6 @@ Game::~Game(){
         delete[] board[i];
     }
     delete[] board;
-    cout << "Game deconstructed." << endl;
 }
 
 
@@ -82,6 +81,8 @@ void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
     board = fen_to_board(fen);
     is_whites_turn = true;
+    prev_moves.clear();
+    // TODO: clear other move-related variables
     update_move_info();
 }
 
@@ -212,7 +213,7 @@ void Game::render(){
         current_rect = {board_x + selected_piece[0] * board_unit, board_y + selected_piece[1] * board_unit, board_unit, board_unit};
         SDL_RenderFillRect(renderer, &current_rect);
         Move move = move_info.take(selected_piece);
-        for (int i = 0; i < move_info.p_size(selected_piece); i++){
+        for (size_t i = 0; i < move_info.p_size(selected_piece); i++){
             int x = move.possible[i][0];
             int y = move.possible[i][1];
             SDL_SetRenderDrawColor(renderer, 0, 0, 255, 100);
