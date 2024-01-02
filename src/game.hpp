@@ -83,6 +83,7 @@ class Game{
         SDL_Texture* get_texture(int piece);
         int piece_to_int(char piece);
         bool is_white_piece(int piece);
+        bool is_black_piece(int piece);
         int** fen_to_board(std::string fen);
         string board_to_fen(int** board);
         

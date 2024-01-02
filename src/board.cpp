@@ -13,7 +13,12 @@ int Game::piece_to_int(char piece){
 
 
 bool Game::is_white_piece(int piece){
-    return piece >= 'A' && piece <= 'Z';
+    return 'A' <= piece && piece <= 'Z';
+}
+
+
+bool Game::is_black_piece(int piece){
+    return 'a' <= piece && piece <= 'z';
 }
 
 
