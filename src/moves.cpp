@@ -11,19 +11,12 @@ int b_left_castle_squares[3][2] = {{1, 0}, {2, 0}, {3, 0}};
 int b_right_castle_squares[2][2] = {{5, 0}, {6, 0}};
 
 
-void Game::log_move(int piece[2], int square[2], int index){
-    if (index < (int)prev_moves.size()){
-        prev_moves.erase(prev_moves.begin() + index, prev_moves.end());
-    }
-    MoveLog log;
-    log.x1 = piece[0];
-    log.y1 = piece[1];
-    log.piece1 = board[piece[0]][piece[1]];
-    log.x2 = square[0];
-    log.y2 = square[1];
-    log.piece2 = board[square[0]][square[1]];
-    log.index = index;
-    prev_moves.push_back(log);
+bool is_castle_move(int piece[2], int square[2]){
+    if (piece[0] == 4 && piece[1] == 0 && square[0] == 0 && square[1] == 0) return true;
+    if (piece[0] == 4 && piece[1] == 0 && square[0] == 7 && square[1] == 0) return true;
+    if (piece[0] == 4 && piece[1] == 7 && square[0] == 0 && square[1] == 7) return true;
+    if (piece[0] == 4 && piece[1] == 7 && square[0] == 7 && square[1] == 7) return true;
+    return false;
 }
 
 
@@ -36,7 +29,6 @@ bool Game::move_piece(int piece[2], int square[2]){
         }
     }
     if (!is_move_valid) return false;
-    log_move(piece, square, move_counter); // it is important to log before applying the change
 
     if (board[piece[0]][piece[1]] == BLACK_ROOK){ // if it's a black rook
         if (piece[0] == 0 && piece[1] == 0 && b_left_castle) b_left_castle = false;
@@ -58,41 +50,79 @@ bool Game::move_piece(int piece[2], int square[2]){
         w_right_castle = false;
     }
 
+    // logging variables
+    char piece_1 = board[piece[0]][piece[1]];
+    char piece_2 = board[square[0]][square[1]];
+    bool is_promotion = false;
+    bool is_en_passant = false;
+    bool is_castle = false;
+    
+    int en_passant_cache[2] = {en_passant_square[0], en_passant_square[1]};
+
     if (tolower(board[piece[0]][piece[1]]) == BLACK_PAWN){ // if it's a pawn
         if (abs(piece[0] - square[0]) == 1 && board[square[0]][square[1]] == 0){ 
             // if it's an en-passant move
             SDL_assert(en_passant_square[0] == square[0]);
             SDL_assert(en_passant_square[1] == piece[1]);
             board[square[0]][piece[1]] = 0;
+            is_en_passant = true;
         }
         if(abs(piece[1] - square[1]) == 2){
             // if the pawn made a double move, hold its square
             en_passant_square[0] = square[0];
             en_passant_square[1] = square[1];
         }
-        else{
-            // if not holding any en-passant square for the next turn, just remove it
-            en_passant_square[0] = -1;
-            en_passant_square[1] = -1;   
-        }
         int starting_y = is_white_piece(board[piece[0]][piece[1]]) ? 6 : 1;
         if (abs(starting_y - square[1]) == 6){ // promoting
             board[piece[0]][piece[1]] = 0;
             promote(square);
+            is_promotion = true;
         }
         else{ // if not promoting, then continue normally
             board[square[0]][square[1]] = board[piece[0]][piece[1]];
             board[piece[0]][piece[1]] = 0;
         }
     }
-    else
+    else if(board[piece[0]][piece[1]] == BLACK_KING && is_castle_move(piece, square)){ // if it's black king
+        if (square[0] == 0 && square[1] == 0){ // if it's a left castle
+            board[2][0] = board[piece[0]][piece[1]];
+            board[3][0] = board[0][0];
+            board[0][0] = 0;
+        }
+        else if (square[0] == 7 && square[1] == 0){ // if it's a right castle
+            board[6][0] = board[piece[0]][piece[1]];
+            board[5][0] = board[7][0];
+            board[7][0] = 0;
+        }
+        board[piece[0]][piece[1]] = 0;
+        is_castle = true;
+    }
+    else if(board[piece[0]][piece[1]] == WHITE_KING && is_castle_move(piece, square)){ // if it's white king
+        if (square[0] == 0 && square[1] == 7){ // if it's a left castle
+            board[2][7] = board[piece[0]][piece[1]];
+            board[3][7] = board[0][7];
+            board[0][7] = 0;
+        }
+        else if (square[0] == 7 && square[1] == 7){ // if it's a right castle
+            board[6][7] = board[piece[0]][piece[1]];
+            board[5][7] = board[7][7];
+            board[7][7] = 0;
+        }
+        board[piece[0]][piece[1]] = 0;
+        is_castle = true;
+    }
+    else // any other piece
     {
         board[square[0]][square[1]] = board[piece[0]][piece[1]];
-        board[piece[0]][piece[1]] = 0;
-        en_passant_square[0] = -1;
-        en_passant_square[1] = -1;   
+        board[piece[0]][piece[1]] = 0; 
     }
     
+    if (en_passant_square[0] == en_passant_cache[0] && en_passant_square[1] == en_passant_cache[1]){
+        en_passant_square[0] = -1;
+        en_passant_square[1] = -1;
+    }
+
+    log_move(piece, piece_1, square, piece_2, move_counter, is_en_passant, is_promotion, is_castle, en_passant_square);
     is_whites_turn = !is_whites_turn;
     move_counter++;
     update_move_info();
@@ -109,32 +139,6 @@ void Game::move_selected(int square[2]){
 
 void Game::promote(int square[2]){
     board[square[0]][square[1]] = square[1] == 0 ? WHITE_QUEEN  : BLACK_QUEEN;
-}
-
-
-void Game::take_back(short times){
-    for (int i = 0; i < times; i++){
-        if (move_counter == 0) break;
-        move_counter--;
-        MoveLog log = prev_moves[move_counter];
-        board[log.x1][log.y1] = log.piece1;
-        board[log.x2][log.y2] = log.piece2;
-        is_whites_turn = !is_whites_turn;
-    }
-    update_move_info();
-}
-
-
-void Game::go_forward(short times){
-    for (int i = 0; i < times; i++){
-        if (move_counter >= (int)prev_moves.size()) break;
-        move_counter++;
-        MoveLog log = prev_moves[move_counter - 1];
-        board[log.x1][log.y1] = 0;
-        board[log.x2][log.y2] = log.piece1;
-        is_whites_turn = !is_whites_turn;
-    }
-    update_move_info();
 }
 
 
