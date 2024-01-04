@@ -26,6 +26,8 @@ struct MoveLog {
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
+    unsigned short en_passant_x;
+    unsigned short en_passant_y;
     char piece1;
     char piece2;
     bool w_left_castle;

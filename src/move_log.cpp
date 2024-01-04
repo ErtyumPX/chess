@@ -1,7 +1,7 @@
 #include "game.hpp"
 
 
-void Game::log_move(int square_1[2], char piece_1, int square_2[2], char piece_2, int index, bool is_en_passant, bool is_promotion, bool is_castle){
+void Game::log_move(int square_1[2], char piece_1, int square_2[2], char piece_2, int index, bool is_en_passant, bool is_promotion, bool is_castle, int en_passant_square[2]){
     // if the move is not the last move, delete all moves after it
     // (happens when a move is taken back and a new move is made)
     if (index < (int)prev_moves.size()){
@@ -22,6 +22,8 @@ void Game::log_move(int square_1[2], char piece_1, int square_2[2], char piece_2
     log.is_en_passant = is_en_passant;
     log.is_promotion = is_promotion;
     log.is_castle = is_castle;
+    log.en_passant_x = en_passant_square[0];
+    log.en_passant_y = en_passant_square[1];
     prev_moves.push_back(log);
 }
 
@@ -69,12 +71,15 @@ void Game::take_back(short times){
             board[log.x1][log.y1] = log.piece1;
             board[log.x2][log.y2] = log.piece2;
         }
+ 
         is_whites_turn = !is_whites_turn;
         MoveLog prev_log = prev_moves[move_counter - 1];
         w_left_castle = prev_log.w_left_castle;
         w_right_castle = prev_log.w_right_castle;
         b_left_castle = prev_log.b_left_castle;
         b_right_castle = prev_log.b_right_castle;
+            en_passant_square[0] = prev_log.en_passant_x;
+        en_passant_square[1] = prev_log.en_passant_y;
     }
     update_move_info();
 }

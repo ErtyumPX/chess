@@ -122,7 +122,7 @@ bool Game::move_piece(int piece[2], int square[2]){
         en_passant_square[1] = -1;
     }
 
-    log_move(piece, piece_1, square, piece_2, move_counter, is_en_passant, is_promotion, is_castle);
+    log_move(piece, piece_1, square, piece_2, move_counter, is_en_passant, is_promotion, is_castle, en_passant_square);
     is_whites_turn = !is_whites_turn;
     move_counter++;
     update_move_info();
