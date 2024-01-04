@@ -28,6 +28,13 @@ struct MoveLog {
     unsigned short y2;
     char piece1;
     char piece2;
+    bool w_left_castle;
+    bool w_right_castle;
+    bool b_left_castle;
+    bool b_right_castle;
+    bool is_en_passant;
+    bool is_promotion;
+    bool is_castle;
 };
 
 

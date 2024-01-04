@@ -71,7 +71,7 @@ class Game{
         void promote(int sqaure[2]);
         void take_back(short times = 1);
         void go_forward(short times = 1);
-        void log_move(int piece[2], int square[2], int index);
+        void log_move(int square_1[2], char piece_1, int square_2[2], char piece_2, int index, bool is_en_passant, bool is_promotion, bool is_castle);
         void print_board();
         int mouse_to_square(int mouse_x, int mouse_y);
         void update_move_info();
