@@ -4,6 +4,22 @@
 
 using namespace std;
 
+
+struct FENRecord{
+    string notation;
+    int** board;
+    bool turn;
+    bool white_castle_k;
+    bool white_castle_q;
+    bool black_castle_k;
+    bool black_castle_q;
+    short en_passant_x;
+    short en_passant_y;
+    short halfmove_clock;
+    short fullmove_number;
+};
+
+
 enum Piece {
     WHITE_KING = 'K',
     WHITE_QUEEN = 'Q',

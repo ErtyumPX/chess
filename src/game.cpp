@@ -19,8 +19,7 @@ Uint32 time_left(void)
 // 118,150,86,255
 // 238,238,210,255
 
-// removing  "w KQkq - 0 1" for now
-#define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR" 
+#define EMPTY_BOARD "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 #define WHITE_PIECE_DIR "assets/white/{}.png"
 #define BLACK_PIECE_DIR "assets/black/{}.png"
 
@@ -79,8 +78,15 @@ void Game::initialize(int width, int height){
 
 void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
-    board = fen_to_board(fen);
-    is_whites_turn = true;
+    FENRecord fen_record = de_compile_fen(fen);
+    board = fen_record.board;
+    is_whites_turn = fen_record.turn;
+    en_passant_square[0] = fen_record.en_passant_x;
+    en_passant_square[1] = fen_record.en_passant_y;
+    w_left_castle = fen_record.white_castle_q;
+    w_right_castle = fen_record.white_castle_k;
+    b_left_castle = fen_record.black_castle_q;
+    b_right_castle = fen_record.black_castle_k;
     prev_moves.clear();
     // TODO: clear other move-related variables
     update_move_info();
