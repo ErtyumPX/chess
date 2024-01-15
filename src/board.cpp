@@ -34,7 +34,7 @@ bool Game::is_black_piece(int piece){
 // ([rnbqkbnr]{8}\/){7}[rnbqkbnr]{8} [wb] (K?Q?k?q?|-) ([a-h][1-8]|-) \d+ \d+
 
 
-FENRecord Game::fen_to_board(std::string fen){
+FENRecord Game::de_compile_fen(std::string fen){
     // board is 2d 8x8 int array
     int index = 0;
 
@@ -120,7 +120,7 @@ FENRecord Game::fen_to_board(std::string fen){
 }
 
 
-string Game::board_to_fen(int** board){
+string Game::compile_fen(int** board){
     string fen = "";
     for (int y = 0; y < 8; y++){
         int space_count = 0;

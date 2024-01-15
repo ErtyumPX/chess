@@ -78,7 +78,7 @@ void Game::initialize(int width, int height){
 
 void Game::create_board(string fen){
     if (fen == "") fen = EMPTY_BOARD;
-    FENRecord fen_record = fen_to_board(fen);
+    FENRecord fen_record = de_compile_fen(fen);
     board = fen_record.board;
     is_whites_turn = fen_record.turn;
     en_passant_square[0] = fen_record.en_passant_x;
